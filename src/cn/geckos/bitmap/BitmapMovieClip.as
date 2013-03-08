@@ -34,6 +34,12 @@ public class BitmapMovieClip extends EventDispatcher
 	//按钮模式
 	private var _buttonMode:Boolean;
 	private var _mouseEnabled:Boolean;
+	//坐标
+	private var _x:Number;
+	private var _y:Number;
+	//高宽
+	private var _width:Number;
+	private var _height:Number;
 	public function BitmapMovieClip(mc:MovieClip, container:Sprite)
 	{
 		if (!mc) 
@@ -394,6 +400,57 @@ public class BitmapMovieClip extends EventDispatcher
 			this.bitmapDataList.splice(i, 1);
 		}
 		this.bitmapDataList = null;
+	}
+	
+	/**
+	 * 移动到某个位置
+	 * @param	x  x坐标
+	 * @param	y  y坐标
+	 */
+	public function move(x:Number, y:Number):void
+	{
+		this.x = x;
+		this.y = y;
+	}
+	
+	/**
+	 * x坐标
+	 */
+	public function get x():Number{ return _x; }
+	public function set x(value:Number):void 
+	{
+		_x = value;
+		this.bitmap.x = this.x;
+	}
+	
+	/**
+	 * y坐标
+	 */
+	public function get y():Number{ return _y; }
+	public function set y(value:Number):void 
+	{
+		_y = value;
+		this.bitmap.y = this.y;
+	}
+	
+	/**
+	 * 宽度
+	 */
+	public function get width():Number{ return this.bitmap.width; }
+	public function set width(value:Number):void 
+	{
+		_width = value;
+		this.bitmap.width = width;
+	}
+	
+	/**
+	 * 高度
+	 */
+	public function get height():Number { return this.bitmap.height; };
+	public function set height(value:Number):void 
+	{
+		_height = value;
+		this.bitmap.height = width;
 	}
 	
 	/**
