@@ -74,7 +74,7 @@ public class Test extends Sprite
 	private function mouseDownHandler(event:MouseEvent):void 
 	{
 		spt.startDrag();
-		//this.manager.destory();
+		//this.manager.destroy();
 	}
 	
 }

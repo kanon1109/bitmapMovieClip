@@ -456,7 +456,7 @@ public class BitmapMovieClip extends EventDispatcher
 	/**
 	 * 销毁自己
 	 */
-	public function destory():void
+	public function destroy():void
 	{
 		this.stop();
 		this.removeBitmapDataList();

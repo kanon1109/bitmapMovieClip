@@ -116,11 +116,11 @@ public class BitmapMovieClipManager
 	/**
 	 * 销毁所有的位图动画
 	 */
-	public function destoryAllBitmapMovieClip():void
+	public function destroyAllBitmapMovieClip():void
 	{
 		for each (var bmc:BitmapMovieClip in this.bmcDictory) 
 		{
-			bmc.destory();
+			bmc.destroy();
 			bmc = null;
 		}
 	}
@@ -128,9 +128,9 @@ public class BitmapMovieClipManager
 	/**
 	 * 销毁
 	 */
-	public function destory():void
+	public function destroy():void
 	{
-		this.destoryAllBitmapMovieClip();
+		this.destroyAllBitmapMovieClip();
 		this.bmcDictory = null;
 		if (this.shape)
 		{
