@@ -18,28 +18,40 @@ import flash.geom.Rectangle;
  */
 public class BitmapMovieClip extends EventDispatcher
 {
-	private var bitmap:Bitmap;
-	private var bitmapDataList:Array;
+	//一个位图用于创建位图动画
+	protected var bitmap:Bitmap;
+	//存放多个帧的位图列表。
+	protected var bitmapDataList:Array;
 	//当前帧
-	private var _currentFrame:int = 1;
-	private var _totalFrames:int;
-	private var _visible:Boolean;
-	private var _scaleX:int = 1;
-	private var _scaleY:int = 1;
-	private var mc:MovieClip;
-	private var size:Object;
-	private var _name:String;
+	protected var _currentFrame:int = 1;
+	//总帧数 
+	protected var _totalFrames:int;
+	//可见值
+	protected var _visible:Boolean;
+	//纵横缩放比例
+	protected var _scaleX:int = 1;
+	protected var _scaleY:int = 1;
+	//实例名
+	protected var _name:String;
 	//需要显示这个位图动画的容器
-	private var container:Sprite;
+	protected var container:Sprite;
 	//按钮模式
-	private var _buttonMode:Boolean;
-	private var _mouseEnabled:Boolean;
+	protected var _buttonMode:Boolean;
+	//是否允许鼠标点击
+	protected var _mouseEnabled:Boolean;
 	//坐标
-	private var _x:Number;
-	private var _y:Number;
+	protected var _x:Number;
+	protected var _y:Number;
 	//高宽
-	private var _width:Number;
-	private var _height:Number;
+	protected var _width:Number;
+	protected var _height:Number;
+	//透明度 0-1
+	protected var _alpha:Number;
+	//---private----
+	//需要创建位图动画的mc
+	private var mc:MovieClip;
+	//保存尺寸的对象
+	private var size:Object;
 	public function BitmapMovieClip(mc:MovieClip, container:Sprite)
 	{
 		if (!mc) 
@@ -392,6 +404,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	private function removeBitmapDataList():void
 	{
+		if (!this.bitmapDataList) return;
 		var length:int = this.bitmapDataList.length;
 		for (var i:int = length - 1; i >= 0; i -= 1)
 		{
@@ -451,6 +464,20 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		_height = value;
 		this.bitmap.height = width;
+	}
+	
+	/**
+	 * 透明度
+	 */
+	public function get alpha():Number { return _alpha; }
+	public function set alpha(value:Number):void 
+	{
+		_alpha = value;
+		if (_alpha < 0)
+			_alpha = 0;
+		else if (_alpha > 1) 
+			_alpha = 1;
+		this.bitmap.alpha = alpha;
 	}
 	
 	/**

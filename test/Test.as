@@ -40,6 +40,7 @@ public class Test extends Sprite
 			this.bitmapMovieClip.addEventListener(MouseEvent.CLICK, bitmapMovieClipClick);
 			this.bitmapMovieClip.addEventListener(MouseEvent.MOUSE_DOWN, bitmapMovieClipDown);
 			this.bitmapMovieClip.addEventListener(MouseEvent.MOUSE_UP, bitmapMovieClipUp);
+			bitmapMovieClip.alpha = .3;
 			//this.manager.push(this.bitmapMovieClip);
 			bitmapMovieClip.play();
 			//this.spt.addChild(mc);
