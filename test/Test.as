@@ -35,7 +35,7 @@ public class Test extends Sprite
 			//mc.y = Random.randnum( -rect.top, stage.stageHeight - rect.bottom);
 			mc.x = 209.6;
 			mc.y = 295.85;
-			this.bitmapMovieClip = new BitmapMovieClip(mc, this.spt);
+			this.bitmapMovieClip = new BitmapMovieClip(mc, c1);
 			this.bitmapMovieClip.buttonMode = true;
 			this.bitmapMovieClip.addEventListener(MouseEvent.CLICK, bitmapMovieClipClick);
 			this.bitmapMovieClip.addEventListener(MouseEvent.MOUSE_DOWN, bitmapMovieClipDown);
@@ -47,9 +47,7 @@ public class Test extends Sprite
 			//mc = null;
 		}
 		//this.manager.startRender();
-		/*spt.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
-		spt.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
-		stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);*/
+		stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
 	}
 	
 	private function bitmapMovieClipClick(e:MouseEvent):void 
@@ -65,16 +63,18 @@ public class Test extends Sprite
 	private function bitmapMovieClipDown(e:MouseEvent):void 
 	{
 		trace(e);
+		this.bitmapMovieClip.beRemoveChild();
 	}
 	
 	private function mouseUpHandler(event:MouseEvent):void 
 	{
-		spt.stopDrag();
+		//spt.stopDrag();
+		this.bitmapMovieClip.beAddChild(c2);
 	}
 	
 	private function mouseDownHandler(event:MouseEvent):void 
 	{
-		spt.startDrag();
+		//spt.startDrag();
 		//this.manager.destroy();
 	}
 	

@@ -2,6 +2,7 @@ package cn.geckos.bitmap
 {
 import flash.display.Bitmap;
 import flash.display.BitmapData;
+import flash.display.DisplayObjectContainer;
 import flash.display.MovieClip;
 import flash.display.Sprite;
 import flash.events.Event;
@@ -147,6 +148,44 @@ public class BitmapMovieClip extends EventDispatcher
 		this._currentFrame--;
 		this.checkCurrentFrame(this.bitmapDataList);
 		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
+	}
+	
+	/**
+	 * 被添加进显示对象
+	 * @param	container  外部容器
+	 */
+	public function beAddChild(container:DisplayObjectContainer):void
+	{
+		if (!this.bitmap) return;
+		if (this.container == container) return;
+		var buttonMode:Boolean;
+		var mouseEnabled:Boolean;
+		if (this.container)
+		{
+			//先保存上一次容器的鼠标状态
+			buttonMode = this.buttonMode;
+			mouseEnabled = this.mouseEnabled;
+			this.mouseEnabled = false;
+			this.buttonMode = false;
+		}
+		this.container = Sprite(container);
+		this.buttonMode = buttonMode;
+		this.mouseEnabled = mouseEnabled;
+		this.container.addChild(this.bitmap);
+	}
+	
+	/**
+	 * 从外部容器删除
+	 * @param	container  外部容器
+	 */
+	public function beRemoveChild():void
+	{
+		if (!this.bitmap) return;
+		if (!this.container) return;
+		this.buttonMode = false;
+		this.mouseEnabled = false;
+		this.container.removeChild(this.bitmap);
+		this.container = null;
 	}
 	
 	private function enterFrameHandler(event:Event):void 
