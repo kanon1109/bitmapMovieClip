@@ -494,6 +494,7 @@ public class BitmapMovieClip extends EventDispatcher
 		this.mouseEnabled = false;
 		this.container = null;
 		this.mc = null;
+		this.size = null;
 		this.bitmap = null;
 	}
 	
