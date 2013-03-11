@@ -156,6 +156,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function beAddChild(container:DisplayObjectContainer):void
 	{
+		if (!container) return;
 		if (!this.bitmap) return;
 		if (this.container == container) return;
 		var buttonMode:Boolean;
@@ -352,21 +353,19 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set buttonMode(value:Boolean):void 
 	{
 		_buttonMode = value;
-		if (this.container)
+		if (!this.container) return;
+		if (this.buttonMode)
 		{
-			this.container.buttonMode = this.buttonMode;
-			if (this.buttonMode)
-			{
-				this.container.addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
-				this.container.addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
-			}
-			else
-			{
-				this.container.removeEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
-				this.container.removeEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
-				this.container.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
-			}
+			this.container.addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+			this.container.addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
 		}
+		else
+		{
+			this.container.removeEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
+			this.container.removeEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
+			this.container.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+		}
+		this.container.buttonMode = this.buttonMode;
 	}
 	
 	/**
@@ -376,6 +375,7 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set mouseEnabled(value:Boolean):void 
 	{
 		_mouseEnabled = value;
+		if (!this.container) return;
 		if (this.mouseEnabled)
 		{
 			this.container.addEventListener(MouseEvent.CLICK, mouseClickHandler);
