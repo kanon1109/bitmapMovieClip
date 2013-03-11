@@ -2,6 +2,7 @@ package cn.geckos.bitmap
 {
 import flash.display.Bitmap;
 import flash.display.BitmapData;
+import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 import flash.display.MovieClip;
 import flash.display.Sprite;
@@ -53,6 +54,8 @@ public class BitmapMovieClip extends EventDispatcher
 	private var mc:MovieClip;
 	//保存尺寸的对象
 	private var size:Object;
+	//动画是否在播放
+	private var _isPlaying:Boolean;
 	public function BitmapMovieClip(mc:MovieClip, container:Sprite)
 	{
 		if (!mc) 
@@ -79,7 +82,6 @@ public class BitmapMovieClip extends EventDispatcher
 		if (this.bitmap) return;
 		this.bitmap = new Bitmap();
 		this.bitmap.smoothing = true;
-		var rect:Rectangle = mc.getBounds(mc);
 		this.bitmap.x = mc.x + maxLeft;
 		this.bitmap.y = mc.y + maxTop;
 		container.addChild(this.bitmap);
@@ -93,6 +95,7 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!this.bitmap) return;
 		if (!this.bitmap.hasEventListener(Event.ENTER_FRAME))
 			this.bitmap.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		this._isPlaying = true;
 	}
 	
 	/**
@@ -100,8 +103,10 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function stop():void
 	{
+		if (!this.bitmap) return;
 		if (this.bitmap.hasEventListener(Event.ENTER_FRAME))
 			this.bitmap.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		this._isPlaying = false;
 	}
 	
 	/**
@@ -110,6 +115,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function gotoAndPlay(frame:int):void
 	{
+		if (!this.bitmap) return;
 		this._currentFrame = frame;
 		this.checkCurrentFrame(this.bitmapDataList);
 		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
@@ -122,6 +128,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function gotoAndStop(frame:int):void
 	{
+		if (!this.bitmap) return;
 		this.stop();
 		this._currentFrame = frame;
 		this.checkCurrentFrame(this.bitmapDataList);
@@ -177,7 +184,6 @@ public class BitmapMovieClip extends EventDispatcher
 	
 	/**
 	 * 从外部容器删除
-	 * @param	container  外部容器
 	 */
 	public function beRemoveChild():void
 	{
@@ -189,11 +195,73 @@ public class BitmapMovieClip extends EventDispatcher
 		this.container = null;
 	}
 	
-	private function enterFrameHandler(event:Event):void 
+	/**
+	 * 添加到显示对象中去
+	 * @param	displayObject 显示对象
+	 * @param	pos           要添加到的位置
+	 */
+	public function addChild(displayObject:DisplayObject, pos:Point):void
 	{
+		if (!this.container) return;
+		if (!this.mc) return;
+		if (this.container == displayObject)
+			throw new ArgumentError("Error #2150: 无法将对象添加为自身的子对象（或孙对象）的子对象。", 2150);
+		this.mc.addChild(displayObject);
+		displayObject.x = pos.x;
+		displayObject.y = pos.y;
+		//先保存之前的一些数据
+		this.updateBitmapDataList();
+	}
+	
+	/**
+	 * 将内部的显示对象销毁
+	 * @param	displayObject  需要销毁的显示对象
+	 */
+	public function removeChild(displayObject:DisplayObject):void
+	{
+		if (!this.container) return;
+		if (!this.mc) return;
+		if (displayObject && 
+			displayObject.parent)
+			displayObject.parent.removeChild(displayObject);
+		else
+			return;
+		this.updateBitmapDataList();
+	}
+	
+	/**
+	 * 更新位图数据列表
+	 */
+	protected function updateBitmapDataList():void
+	{
+		if (!this.mc) return;
+		var isPlaying:Boolean = this._isPlaying;
+		if (isPlaying) this.stop();
+		this.size = this.getMaxSize(this.mc);
+		this.bitmap.x = this.mc.x + this.size.maxLeft;
+		this.bitmap.y = this.mc.y + this.size.maxTop;
+		this.removeBitmapDataList();
+		this.bitmapDataList = this.drawMovieClip(this.mc, this.size.maxWidth, this.size.maxHeight, 
+												 this.size.maxLeft, this.size.maxTop);
+		this.gotoAndStop(this._currentFrame);
+		if (isPlaying)
+			this.play();
+	}
+	
+	/**
+	 * 渲染
+	 */
+	protected function doRender():void
+	{
+		if (!this.bitmapDataList) return;
 		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 		this._currentFrame++;
 		this.checkCurrentFrame(this.bitmapDataList);
+	}
+	
+	private function enterFrameHandler(event:Event):void 
+	{
+		this.doRender();
 	}
 	
 	/**
@@ -255,7 +323,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 * @param	height  高度
 	 * @param	left  	mc的矩形范围最左位置
 	 * @param	top  	mc的矩形范围最上位置
-	 * @return
+	 * @return  位图数据列表 根据mc帧的内容部署
 	 */
 	private function drawMovieClip(mc:MovieClip, width:Number, height:Number, maxLeft:Number, maxTop:Number):Array
 	{
@@ -455,6 +523,35 @@ public class BitmapMovieClip extends EventDispatcher
 	}
 	
 	/**
+	 * 销毁位图对象
+	 */
+	private function removeBitmap():void
+	{
+		if (this.bitmap && 
+			this.bitmap.parent)
+			this.bitmap.parent.removeChild(this.bitmap);
+		this.bitmap = null;
+	}
+	
+	/**
+	 * 销毁mc
+	 */
+	private function removeMovieClip():void
+	{
+		if (this.mc && 
+			this.mc.parent)
+		{
+			var numChildren:int = this.mc.numChildren;
+			for (var i:int = numChildren - 1; i >= 0; i -= 1)
+			{
+				this.mc.removeChild(this.mc.getChildAt(i));
+			}
+			this.mc.parent.removeChild(this.mc);
+		}
+		this.mc = null;
+	}
+	
+	/**
 	 * 移动到某个位置
 	 * @param	x  x坐标
 	 * @param	y  y坐标
@@ -520,22 +617,23 @@ public class BitmapMovieClip extends EventDispatcher
 	}
 	
 	/**
+	 * 是否在播放中
+	 */
+	public function get isPlaying():Boolean{ return _isPlaying; }
+	
+	/**
 	 * 销毁自己
 	 */
 	public function destroy():void
 	{
 		this.stop();
 		this.removeBitmapDataList();
-		if (this.bitmap && 
-			this.bitmap.parent)
-			this.bitmap.parent.removeChild(this.bitmap);
 		this.buttonMode = false;
 		this.mouseEnabled = false;
 		this.container = null;
-		this.mc = null;
+		this.removeMovieClip();
 		this.size = null;
-		this.bitmap = null;
+		this.removeBitmap();
 	}
-	
 }
 }

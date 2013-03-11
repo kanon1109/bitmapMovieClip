@@ -4,10 +4,13 @@ import cn.geckos.bitmap.BitmapMovieClip;
 import cn.geckos.utils.Random;
 import flash.display.MovieClip;
 import flash.display.Sprite;
+import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.filters.GlowFilter;
+import flash.geom.Point;
 import flash.geom.Rectangle;
 import cn.geckos.bitmap.BitmapMovieClipManager;
+import flash.ui.Keyboard;
 
 /**
  * ...
@@ -18,6 +21,7 @@ public class Test extends Sprite
 	private var bitmapMovieClip:BitmapMovieClip;
 	private var manager:BitmapMovieClipManager;
 	private var spt:Sprite;
+	private var effectMc:MovieClip;
 	public function Test() 
 	{
 		this.manager = new BitmapMovieClipManager();
@@ -40,14 +44,25 @@ public class Test extends Sprite
 			this.bitmapMovieClip.addEventListener(MouseEvent.CLICK, bitmapMovieClipClick);
 			this.bitmapMovieClip.addEventListener(MouseEvent.MOUSE_DOWN, bitmapMovieClipDown);
 			this.bitmapMovieClip.addEventListener(MouseEvent.MOUSE_UP, bitmapMovieClipUp);
-			bitmapMovieClip.alpha = .3;
+			bitmapMovieClip.alpha = .9;
 			//this.manager.push(this.bitmapMovieClip);
 			bitmapMovieClip.play();
 			//this.spt.addChild(mc);
 			//mc = null;
 		}
+		this.effectMc = new ACTION_EFFECT_RUN();
+		this.addChild(this.effectMc);
 		//this.manager.startRender();
 		stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+	}
+	
+	private function keyDownHandler(event:KeyboardEvent):void 
+	{
+		if (event.keyCode == Keyboard.D)
+			this.bitmapMovieClip.removeChild(c2);
+		if (event.keyCode == Keyboard.C)
+			this.bitmapMovieClip.destroy();
 	}
 	
 	private function bitmapMovieClipClick(e:MouseEvent):void 
@@ -63,13 +78,15 @@ public class Test extends Sprite
 	private function bitmapMovieClipDown(e:MouseEvent):void 
 	{
 		trace(e);
-		this.bitmapMovieClip.beRemoveChild();
+		//this.bitmapMovieClip.beRemoveChild();
 	}
 	
 	private function mouseUpHandler(event:MouseEvent):void 
 	{
 		//spt.stopDrag();
 		this.bitmapMovieClip.beAddChild(c2);
+		//this.bitmapMovieClip.addChild(c2, new Point(100, -280));
+		this.bitmapMovieClip.addChild(this.effectMc, new Point(100, -280));
 	}
 	
 	private function mouseDownHandler(event:MouseEvent):void 
