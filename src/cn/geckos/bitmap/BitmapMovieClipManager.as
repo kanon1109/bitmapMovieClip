@@ -114,6 +114,21 @@ public class BitmapMovieClipManager
 	}
 	
 	/**
+	 * 根据位图动画的名字获取位图动画
+	 * @param	name  位图动画的名字
+	 * @return  位图动画
+	 */
+	public function getBitmapMovieClipByName(name:String):BitmapMovieClip
+	{
+		for each (var bmc:BitmapMovieClip in this.bmcDictory) 
+		{
+			if (bmc && bmc.name == name)
+				return bmc;
+		}
+		return null;
+	}
+	
+	/**
 	 * 销毁所有的位图动画
 	 */
 	public function destroyAllBitmapMovieClip():void
