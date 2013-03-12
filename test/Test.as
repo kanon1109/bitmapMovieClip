@@ -108,7 +108,7 @@ public class Test extends Sprite
 	private function mouseUpHandler(event:MouseEvent):void 
 	{
 		//spt.stopDrag();
-		this.bitmapMovieClip.beAddChild(c2);
+		this.bitmapMovieClip.beAddChild(c2.c1);
 		//this.bitmapMovieClip.addChild(c2, new Point(100, -280));
 		this.bitmapMovieClip.addChild(this.effectMc, new Point(100, -280));
 	}

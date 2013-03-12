@@ -80,12 +80,12 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	private function createBitmap(maxLeft:Number, maxTop:Number, mc:MovieClip, container:Sprite):void
 	{
-		if (this._bitmap) return;
+		if (this.bitmap) return;
 		this._bitmap = new Bitmap();
-		this._bitmap.smoothing = true;
-		this._bitmap.x = mc.x + maxLeft;
-		this._bitmap.y = mc.y + maxTop;
-		container.addChild(this._bitmap);
+		this.bitmap.smoothing = true;
+		this.bitmap.x = mc.x + maxLeft;
+		this.bitmap.y = mc.y + maxTop;
+		container.addChild(this.bitmap);
 	}
 	
 	/**
@@ -93,9 +93,9 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function play():void
 	{
-		if (!this._bitmap) return;
-		if (!this._bitmap.hasEventListener(Event.ENTER_FRAME))
-			this._bitmap.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		if (!this.bitmap) return;
+		if (!this.bitmap.hasEventListener(Event.ENTER_FRAME))
+			this.bitmap.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		this._isPlaying = true;
 	}
 	
@@ -104,9 +104,9 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function stop():void
 	{
-		if (!this._bitmap) return;
-		if (this._bitmap.hasEventListener(Event.ENTER_FRAME))
-			this._bitmap.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		if (!this.bitmap) return;
+		if (this.bitmap.hasEventListener(Event.ENTER_FRAME))
+			this.bitmap.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		this._isPlaying = false;
 	}
 	
@@ -116,10 +116,10 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function gotoAndPlay(frame:int):void
 	{
-		if (!this._bitmap) return;
+		if (!this.bitmap) return;
 		this._currentFrame = frame;
 		this.checkCurrentFrame(this.bitmapDataList);
-		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
+		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 		this.play();
 	}
 	
@@ -129,11 +129,11 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function gotoAndStop(frame:int):void
 	{
-		if (!this._bitmap) return;
+		if (!this.bitmap) return;
 		this.stop();
 		this._currentFrame = frame;
 		this.checkCurrentFrame(this.bitmapDataList);
-		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
+		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 	}
 	
 	/**
@@ -144,7 +144,7 @@ public class BitmapMovieClip extends EventDispatcher
 		this.stop();
 		this._currentFrame++;
 		this.checkCurrentFrame(this.bitmapDataList);
-		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
+		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 	}
 	
 	/**
@@ -155,7 +155,7 @@ public class BitmapMovieClip extends EventDispatcher
 		this.stop();
 		this._currentFrame--;
 		this.checkCurrentFrame(this.bitmapDataList);
-		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
+		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 	}
 	
 	/**
@@ -165,7 +165,7 @@ public class BitmapMovieClip extends EventDispatcher
 	public function beAddChild(container:DisplayObjectContainer):void
 	{
 		if (!container) return;
-		if (!this._bitmap) return;
+		if (!this.bitmap) return;
 		if (this.container == container) return;
 		var buttonMode:Boolean;
 		var mouseEnabled:Boolean;
@@ -180,7 +180,7 @@ public class BitmapMovieClip extends EventDispatcher
 		this.container = Sprite(container);
 		this.buttonMode = buttonMode;
 		this.mouseEnabled = mouseEnabled;
-		this.container.addChild(this._bitmap);
+		this.container.addChild(this.bitmap);
 	}
 	
 	/**
@@ -188,11 +188,11 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function beRemoveChild():void
 	{
-		if (!this._bitmap) return;
+		if (!this.bitmap) return;
 		if (!this.container) return;
 		this.buttonMode = false;
 		this.mouseEnabled = false;
-		this.container.removeChild(this._bitmap);
+		this.container.removeChild(this.bitmap);
 		this.container = null;
 	}
 	
@@ -239,8 +239,8 @@ public class BitmapMovieClip extends EventDispatcher
 		var isPlaying:Boolean = this._isPlaying;
 		if (isPlaying) this.stop();
 		this.size = this.getMaxSize(this.mc);
-		this._bitmap.x = this.mc.x + this.size.maxLeft;
-		this._bitmap.y = this.mc.y + this.size.maxTop;
+		this.bitmap.x = this.mc.x + this.size.maxLeft;
+		this.bitmap.y = this.mc.y + this.size.maxTop;
 		this.removeBitmapDataList();
 		this.bitmapDataList = this.drawMovieClip(this.mc, this.size.maxWidth, this.size.maxHeight, 
 												 this.size.maxLeft, this.size.maxTop);
@@ -254,7 +254,7 @@ public class BitmapMovieClip extends EventDispatcher
 	protected function doRender():void
 	{
 		if (!this.bitmapDataList) return;
-		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
+		this.bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 		this._currentFrame++;
 		this.checkCurrentFrame(this.bitmapDataList);
 	}
@@ -364,12 +364,18 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	public function hitTest(bitmap:Bitmap):Boolean
 	{
-		if (bitmap && this._bitmap)
-			return this._bitmap.bitmapData.hitTest(new Point(this._bitmap.x, this._bitmap.y), 
-												  0xFF, 
-												  bitmap.bitmapData, 
-												  new Point(bitmap.x, bitmap.y), 
-												  0xFF);
+		if (bitmap && 
+			bitmap.parent && 
+			this.bitmap && 
+			this.bitmap.parent)
+		{
+			var p1:Point = new Point(this.bitmap.x, this.bitmap.y);
+			var p2:Point = new Point(bitmap.x, bitmap.y);
+			//转成全局坐标防止,层级不同时碰撞不同。
+			p1 = this.bitmap.parent.localToGlobal(p1);
+			p2 = bitmap.parent.localToGlobal(p2);
+			return this.bitmap.bitmapData.hitTest(p1, 0xFF, bitmap.bitmapData, p2, 0xFF);
+		}
 		return false;
 	}
 	
@@ -402,8 +408,8 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set visible(value:Boolean):void 
 	{
 		_visible = value;
-		if (this._bitmap)
-			this._bitmap.visible = value;
+		if (this.bitmap)
+			this.bitmap.visible = value;
 	}
 	
 	/**
@@ -414,10 +420,10 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		_scaleX = value;
 		if (this.scaleX > 0)
-			this._bitmap.x = this.mc.x + this.size.maxLeft;
+			this.bitmap.x = this.mc.x + this.size.maxLeft;
 		else if (this.scaleX < 0)
-			this._bitmap.x = this.mc.x - this.size.maxLeft;
-		this._bitmap.scaleX = this.scaleX;
+			this.bitmap.x = this.mc.x - this.size.maxLeft;
+		this.bitmap.scaleX = this.scaleX;
 	}
 	
 	/**
@@ -428,18 +434,18 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		_scaleY = value;
 		if (this.scaleY > 0)
-			this._bitmap.y = this.mc.y + this.size.maxTop;
+			this.bitmap.y = this.mc.y + this.size.maxTop;
 		else if (this.scaleY < 0)
-			this._bitmap.y = this.mc.y - this.size.maxTop;
-		this._bitmap.scaleY = this.scaleY;
+			this.bitmap.y = this.mc.y - this.size.maxTop;
+		this.bitmap.scaleY = this.scaleY;
 	}
 	
 	public function get name():String { return _name; };
 	public function set name(value:String):void 
 	{
 		_name = value;
-		if (this._bitmap)
-			this._bitmap.name = this.name;
+		if (this.bitmap)
+			this.bitmap.name = this.name;
 	}
 	
 	/**
@@ -504,8 +510,8 @@ public class BitmapMovieClip extends EventDispatcher
 	private function mouseMoveHandler(event:MouseEvent):void 
 	{
 		//首先需要把屏幕上的鼠标坐标位置转换为bitmap内的鼠标位置
-		var localPos:Point = this._bitmap.globalToLocal(new Point(event.stageX, event.stageY));
-		if (this.isTransparentPoint(localPos, this._bitmap.bitmapData))
+		var localPos:Point = this.bitmap.globalToLocal(new Point(event.stageX, event.stageY));
+		if (this.isTransparentPoint(localPos, this.bitmap.bitmapData))
 			this.container.buttonMode = false;
 		else
 			this.container.buttonMode = true;
@@ -528,9 +534,9 @@ public class BitmapMovieClip extends EventDispatcher
 	 */ 
 	private function mouseEventOption(event:MouseEvent):void
 	{
-		if (!this._bitmap) return;
-		var localPos:Point = this._bitmap.globalToLocal(new Point(event.stageX, event.stageY));
-		if (!this.isTransparentPoint(localPos, this._bitmap.bitmapData))
+		if (!this.bitmap) return;
+		var localPos:Point = this.bitmap.globalToLocal(new Point(event.stageX, event.stageY));
+		if (!this.isTransparentPoint(localPos, this.bitmap.bitmapData))
 			this.dispatchEvent(event);
 	}
 	
@@ -555,9 +561,9 @@ public class BitmapMovieClip extends EventDispatcher
 	 */
 	private function removeBitmap():void
 	{
-		if (this._bitmap && 
-			this._bitmap.parent)
-			this._bitmap.parent.removeChild(this._bitmap);
+		if (this.bitmap && 
+			this.bitmap.parent)
+			this.bitmap.parent.removeChild(this.bitmap);
 		this._bitmap = null;
 	}
 	
@@ -597,7 +603,7 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set x(value:Number):void 
 	{
 		_x = value;
-		this._bitmap.x = this.x;
+		this.bitmap.x = this.x;
 	}
 	
 	/**
@@ -607,27 +613,27 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set y(value:Number):void 
 	{
 		_y = value;
-		this._bitmap.y = this.y;
+		this.bitmap.y = this.y;
 	}
 	
 	/**
 	 * 宽度
 	 */
-	public function get width():Number{ return this._bitmap.width; }
+	public function get width():Number{ return this.bitmap.width; }
 	public function set width(value:Number):void 
 	{
 		_width = value;
-		this._bitmap.width = width;
+		this.bitmap.width = width;
 	}
 	
 	/**
 	 * 高度
 	 */
-	public function get height():Number { return this._bitmap.height; };
+	public function get height():Number { return this.bitmap.height; };
 	public function set height(value:Number):void 
 	{
 		_height = value;
-		this._bitmap.height = width;
+		this.bitmap.height = width;
 	}
 	
 	/**
@@ -641,7 +647,7 @@ public class BitmapMovieClip extends EventDispatcher
 			_alpha = 0;
 		else if (_alpha > 1) 
 			_alpha = 1;
-		this._bitmap.alpha = alpha;
+		this.bitmap.alpha = alpha;
 	}
 	
 	/**
