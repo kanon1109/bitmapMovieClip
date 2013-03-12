@@ -39,7 +39,7 @@ public class Test extends Sprite
 			//mc.y = Random.randnum( -rect.top, stage.stageHeight - rect.bottom);
 			mc.x = 209.6;
 			mc.y = 295.85;
-			var bitmapMovieClip:BitmapMovieClip = new BitmapMovieClip(mc, c1);
+			var bitmapMovieClip:BitmapMovieClip = new BitmapMovieClip(mc, this);
 			bitmapMovieClip.buttonMode = true;
 			bitmapMovieClip.addEventListener(MouseEvent.CLICK, bitmapMovieClipClick);
 			bitmapMovieClip.addEventListener(MouseEvent.MOUSE_DOWN, bitmapMovieClipDown);
@@ -54,10 +54,10 @@ public class Test extends Sprite
 		this.bitmapMovieClip = this.manager.getBitmapMovieClipByName("bitmapMovieClip0");
 		//this.manager.startRender();
 		
-		var bitmapData:BitmapData = new BitmapData(39, 21, true, 0x00000000);
+		/*var bitmapData:BitmapData = new BitmapData(39, 21, true, 0x00000000);
 		bitmapData.draw(new Bmp(39, 21));
 		this.bitmap = new Bitmap(bitmapData);
-		this.addChild(this.bitmap);
+		this.addChild(this.bitmap);*/
 		
 		this.effectMc = new ACTION_EFFECT_RUN();
 		this.addChild(this.effectMc);
@@ -76,6 +76,9 @@ public class Test extends Sprite
 			bitmapMovieClip1.alpha = .4;
 		else
 			bitmapMovieClip1.alpha = 1;
+		
+		trace("hit c1", bitmapMovieClip1.hitTestObject(c1))
+		trace("hit mouse", this.bitmapMovieClip.hitTestPoint(mouseX, mouseY, true));
 		/*this.bitmap.x = mouseX;
 		this.bitmap.y = mouseY;
 		trace(this.bitmapMovieClip.hitTest(this.bitmap));*/

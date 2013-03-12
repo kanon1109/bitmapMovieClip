@@ -392,6 +392,32 @@ public class BitmapMovieClip extends EventDispatcher
 	}
 	
 	/**
+	 * 是否碰撞到显示对象
+	 * @param	obj  显示对象
+	 * @return  是否碰撞
+	 */
+	public function hitTestObject(obj:DisplayObject):Boolean
+	{
+		if (this.bitmap && obj)
+			return this.bitmap.hitTestObject(obj);
+		return false;
+	}
+	
+	/**
+	 * 与某个坐标是否发生碰撞
+	 * @param	x          x坐标
+	 * @param	y		   y坐标
+	 * @param	shapeFlag  碰撞到矩形范围还实际像素
+	 * @return  是否碰撞
+	 */
+	public function hitTestPoint(x:Number, y:Number, shapeFlag:Boolean=false):Boolean
+	{
+		if (this.bitmap)
+			return this.bitmap.hitTestPoint(x, y, shapeFlag);
+		return false;
+	}
+	
+	/**
 	 * 当前帧
 	 */
 	public function get currentFrame():int { return _currentFrame; };
