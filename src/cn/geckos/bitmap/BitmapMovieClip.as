@@ -162,7 +162,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 * 被添加进显示对象
 	 * @param	container  外部容器
 	 */
-	public function beAddChild(container:DisplayObjectContainer):void
+	public function addChildToParent(container:DisplayObjectContainer):void
 	{
 		if (!container) return;
 		if (!this.bitmap) return;
@@ -186,7 +186,7 @@ public class BitmapMovieClip extends EventDispatcher
 	/**
 	 * 从外部容器删除
 	 */
-	public function beRemoveChild():void
+	public function removeFromParent():void
 	{
 		if (!this.bitmap) return;
 		if (!this.container) return;
