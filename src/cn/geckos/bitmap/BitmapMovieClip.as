@@ -330,12 +330,13 @@ public class BitmapMovieClip extends EventDispatcher
 		var bitmapDataList:Array = [];
 		var matrix:Matrix = new Matrix();
 		var totalFrames:int = mc.totalFrames;
+		var bitmapData:BitmapData;
 		for (var i:int = 1; i <= totalFrames; i += 1)
 		{
 			mc.gotoAndStop(i);
 			matrix.tx = -maxLeft;
 			matrix.ty = -maxTop;
-			var bitmapData:BitmapData = new BitmapData(width, height, true, 0x000000);
+			bitmapData = new BitmapData(width, height, true, 0x000000);
 			bitmapData.draw(mc, matrix); 
 			bitmapDataList.push(bitmapData);
 		}
