@@ -2,6 +2,7 @@ package
 {
 import cn.geckos.bitmap.BitmapMovieClip;
 import cn.geckos.bitmap.BitmapMovieClipManager;
+import cn.geckos.utils.Random;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.display.MovieClip;
@@ -9,7 +10,9 @@ import flash.display.Sprite;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.geom.Point;
+import flash.geom.Rectangle;
 import flash.ui.Keyboard;
+import net.hires.debug.Stats
 
 /**
  * ...
@@ -34,11 +37,11 @@ public class Test extends Sprite
 			//mc.filters = [new GlowFilter(0xFF3333, 1, 8, 8, 3.5)];
 			mc.scaleX = -1;
 			//mc.gotoAndStop(1);
-			//var rect:Rectangle = mc.getBounds(mc);
-			//mc.x = Random.randnum( -rect.left, stage.stageWidth - rect.right);
-			//mc.y = Random.randnum( -rect.top, stage.stageHeight - rect.bottom);
-			mc.x = 209.6;
-			mc.y = 295.85;
+			var rect:Rectangle = mc.getBounds(mc);
+			mc.x = Random.randnum( -rect.left, stage.stageWidth - rect.right);
+			mc.y = Random.randnum( -rect.top, stage.stageHeight - rect.bottom);
+			//mc.x = 209.6;
+			//mc.y = 295.85;
 			var bitmapMovieClip:BitmapMovieClip = new BitmapMovieClip(mc, this);
 			bitmapMovieClip.buttonMode = true;
 			bitmapMovieClip.addEventListener(MouseEvent.CLICK, bitmapMovieClipClick);
@@ -65,6 +68,8 @@ public class Test extends Sprite
 		stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 		stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+		
+		this.addChild(new Stats())
 	}
 	
 	private function mouseMoveHandler(event:MouseEvent):void 
@@ -112,7 +117,7 @@ public class Test extends Sprite
 	{
 		//spt.stopDrag();
 		this.bitmapMovieClip.addChildToParent(c2.c1);
-		//this.bitmapMovieClip.addChild(c2, new Point(100, -280));
+		this.bitmapMovieClip.addChild(c2, new Point(100, -280));
 		this.bitmapMovieClip.addChild(this.effectMc, new Point(100, -280));
 	}
 	
