@@ -30,46 +30,47 @@ public class Test extends Sprite
 		this.manager = new BitmapMovieClipManager();
 		this.spt = new Sprite();
 		this.addChild(this.spt);
-		for (var i:int = 0; i < 2; i += 1)
+		var mc:MovieClip = new MC();
+		var rect:Rectangle = mc.getBounds(mc);
+		var drawRect:Rectangle = BitmapMovieClip.getDrawRectangle(mc);
+		var bitmapDataList:Vector.<BitmapData> = BitmapMovieClip.drawMovieClip(mc, drawRect);
+		var bitmapMovieClip:BitmapMovieClip = new BitmapMovieClip(mc, bitmapDataList, drawRect, this);
+		//bitmapMovieClip.play();
+		bitmapMovieClip.x = 250;
+		bitmapMovieClip.y = 200;
+		bitmapMovieClip.name = "bitmapMovieClip0";
+		bitmapMovieClip.buttonMode = true;
+		this.manager.push(bitmapMovieClip);
+		for (var i:int = 1; i <= 300; i += 1)
 		{
-			//var mc:MovieClip = new bgj_man_mcStandL();
-			var mc:MovieClip = new MC();
-			//mc.filters = [new GlowFilter(0xFF3333, 1, 8, 8, 3.5)];
-			mc.scaleX = -1;
-			//mc.gotoAndStop(1);
-			var rect:Rectangle = mc.getBounds(mc);
-			mc.x = Random.randnum( -rect.left, stage.stageWidth - rect.right);
-			mc.y = Random.randnum( -rect.top, stage.stageHeight - rect.bottom);
-			//mc.x = 209.6;
-			//mc.y = 295.85;
-			var bitmapMovieClip:BitmapMovieClip = new BitmapMovieClip(mc, this);
+			//mc.scaleX = -1;
+			bitmapMovieClip = bitmapMovieClip.clone();
 			bitmapMovieClip.buttonMode = true;
 			bitmapMovieClip.addEventListener(MouseEvent.CLICK, bitmapMovieClipClick);
 			bitmapMovieClip.addEventListener(MouseEvent.MOUSE_DOWN, bitmapMovieClipDown);
 			bitmapMovieClip.addEventListener(MouseEvent.MOUSE_UP, bitmapMovieClipUp);
 			bitmapMovieClip.name = "bitmapMovieClip" + i;
+			bitmapMovieClip.x = Random.randint(0, 550);
+			bitmapMovieClip.y = Random.randint(0, 400);
+			//bitmapMovieClip.alpha = .5;
 			this.manager.push(bitmapMovieClip);
 			bitmapMovieClip.play();
-			//this.spt.addChild(mc);
-			//mc = null;
 		}
-		
 		this.bitmapMovieClip = this.manager.getBitmapMovieClipByName("bitmapMovieClip0");
 		//this.manager.startRender();
 		
-		/*var bitmapData:BitmapData = new BitmapData(39, 21, true, 0x00000000);
-		bitmapData.draw(new Bmp(39, 21));
-		this.bitmap = new Bitmap(bitmapData);
-		this.addChild(this.bitmap);*/
-		
 		this.effectMc = new ACTION_EFFECT_RUN();
+		this.effectMc.x = 200;
+		this.effectMc.y = 100;
 		this.addChild(this.effectMc);
 		
-		stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+		//c1.buttonMode = true;
+		
+		//stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 		stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-		
-		this.addChild(new Stats())
+		this.bitmapMovieClip.addChildToParent(c1);
+		//this.addChild(new Stats())
 	}
 	
 	private function mouseMoveHandler(event:MouseEvent):void 
@@ -81,12 +82,6 @@ public class Test extends Sprite
 			bitmapMovieClip1.alpha = .4;
 		else
 			bitmapMovieClip1.alpha = 1;
-		
-		trace("hit c1", bitmapMovieClip1.hitTestObject(c1))
-		trace("hit mouse", this.bitmapMovieClip.hitTestPoint(mouseX, mouseY, true));
-		/*this.bitmap.x = mouseX;
-		this.bitmap.y = mouseY;
-		trace(this.bitmapMovieClip.hitTest(this.bitmap));*/
 	}
 	
 	private function keyDownHandler(event:KeyboardEvent):void 
@@ -99,25 +94,25 @@ public class Test extends Sprite
 	
 	private function bitmapMovieClipClick(e:MouseEvent):void 
 	{
-		trace(e);
+		//trace(e);
 	}
 	
 	private function bitmapMovieClipUp(e:MouseEvent):void 
 	{
-		trace(e);
+		//trace(e);
 	}
 	
 	private function bitmapMovieClipDown(e:MouseEvent):void 
 	{
-		trace(e);
-		//this.bitmapMovieClip.beRemoveChild();
+		//trace("bitmapMovieClipDown");
+		this.bitmapMovieClip.removeFromParent();
 	}
 	
 	private function mouseUpHandler(event:MouseEvent):void 
 	{
 		//spt.stopDrag();
-		this.bitmapMovieClip.addChildToParent(c2.c1);
-		this.bitmapMovieClip.addChild(c2, new Point(100, -280));
+		//this.bitmapMovieClip.addChildToParent(c2);
+		//this.bitmapMovieClip.addChild(c2, new Point(100, -280));
 		this.bitmapMovieClip.addChild(this.effectMc, new Point(100, -280));
 	}
 	

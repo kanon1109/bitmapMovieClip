@@ -23,7 +23,7 @@ public class BitmapMovieClip extends EventDispatcher
 	//需要显示这个位图动画的容器
 	protected var container:Sprite;
 	//存放多个帧的位图列表。
-	protected var bitmapDataList:Array;
+	protected var bitmapDataList:Vector.<BitmapData>;
 	//一个位图用于创建位图动画
 	protected var _bitmap:Bitmap;
 	//当前帧
@@ -33,8 +33,8 @@ public class BitmapMovieClip extends EventDispatcher
 	//可见值
 	protected var _visible:Boolean;
 	//纵横缩放比例
-	protected var _scaleX:int = 1;
-	protected var _scaleY:int = 1;
+	protected var _scaleX:Number = 1;
+	protected var _scaleY:Number = 1;
 	//实例名
 	protected var _name:String;
 	//按钮模式
@@ -43,8 +43,8 @@ public class BitmapMovieClip extends EventDispatcher
 	protected var _mouseEnabled:Boolean;
 	protected var _mouseChildren:Boolean
 	//坐标
-	protected var _x:Number;
-	protected var _y:Number;
+	protected var _x:Number = 0
+	protected var _y:Number = 0;
 	//高宽
 	protected var _width:Number;
 	protected var _height:Number;
@@ -54,29 +54,86 @@ public class BitmapMovieClip extends EventDispatcher
 	//需要创建位图动画的mc
 	private var mc:MovieClip;
 	//保存尺寸的对象
-	private var size:Object;
+	private var drawRectangle:Rectangle;
 	//动画是否在播放
 	private var _isPlaying:Boolean;
-	public function BitmapMovieClip(mc:MovieClip, container:Sprite)
+	public function BitmapMovieClip(movieClip:MovieClip, bitmapDataList:Vector.<BitmapData>, 
+									rect:Rectangle, container:Sprite)
 	{
-		if (!mc) 
-			throw new Error("需要转换的影片剪辑不存在");
-		this.mc = mc;
+		this.mc = movieClip;
 		this.container = container;
-		this.size = this.getMaxSize(mc);
+		this.drawRectangle = rect;
 		this._totalFrames = mc.totalFrames;
-		this.bitmapDataList = this.drawMovieClip(this.mc, this.size.maxWidth, this.size.maxHeight, 
-												 this.size.maxLeft, this.size.maxTop);
-		this.createBitmap(this.size.maxLeft, this.size.maxTop, this.mc, container);
+		this.bitmapDataList = bitmapDataList;
+		this.createBitmap(this.drawRectangle.left, this.drawRectangle.top, this.mc, container);
 		//默认播放第一帧
 		this.gotoAndStop(this._currentFrame);
 		this.mouseEnabled = true;
 	}
 	
 	/**
-	 * 创建位图
-	 * @param	mc 容器
-	 * @param	contener 容器
+	 * 获取绘制mc的范围
+	 * @param	movieClip	需要绘制的mc
+	 * @return	范围矩形
+	 */
+	public static function getDrawRectangle(movieClip:MovieClip):Rectangle
+	{
+		var totalFrames:int = movieClip.totalFrames;
+		var maxWidth:Number = 0;
+		var maxHeight:Number = 0;
+		var maxTop:Number = 0;
+		var maxLeft:Number = 0;
+		var maxRight:Number = 0;
+		var maxBottom:Number = 0;
+		var rect:Rectangle;
+		for (var i:int = 1; i <= totalFrames; i += 1)
+		{
+			movieClip.gotoAndStop(i);
+			//获取最左上角的坐标 用于计算最大高宽
+			rect = movieClip.getBounds(movieClip);
+			if (rect.left < maxLeft)
+				maxLeft = rect.left;
+			if (rect.top < maxTop)
+				maxTop = rect.top;
+			//获取最右下角的坐标 用于计算最大高宽
+			if (rect.right > maxRight)
+				maxRight = rect.right;
+			if (rect.bottom > maxBottom)
+				maxBottom = rect.bottom;
+		}
+		//获取最大的高宽
+		maxWidth = maxRight - maxLeft;
+		maxHeight = maxBottom - maxTop;
+		return new Rectangle(maxLeft, maxTop, maxWidth, maxHeight);
+	}
+	
+	/**
+	 * 将mc转换成bitmapData序列
+	 * @param	movieClip	需要转换的mc
+	 * @return	位图序列
+	 */
+	public static function drawMovieClip(movieClip:MovieClip, rect:Rectangle):Vector.<BitmapData>
+	{
+		var totalFrames:int = movieClip.totalFrames;
+		var vect:Vector.<BitmapData> = new Vector.<BitmapData>();
+		var bitmapData:BitmapData;
+		var matrix:Matrix = new Matrix(1, 0, 0, 1, -rect.left, -rect.top);
+		for (var i:int = 1; i <= totalFrames; i += 1)
+		{
+			movieClip.gotoAndStop(i);
+			bitmapData = new BitmapData(rect.width, rect.height, true, 0xFFFFFF);
+			bitmapData.draw(movieClip, matrix);
+			vect.push(bitmapData);
+		}
+		return vect;
+	}
+	
+	/**
+	 *  * 创建位图
+	 * @param	maxLeft	左坐标
+	 * @param	maxTop	上坐标
+	 * @param	mc		绘制的mc
+	 * @param	container 容器
 	 */
 	private function createBitmap(maxLeft:Number, maxTop:Number, mc:MovieClip, container:Sprite):void
 	{
@@ -118,7 +175,7 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		if (!this._bitmap) return;
 		this._currentFrame = frame;
-		this.checkCurrentFrame(this.bitmapDataList);
+		this.checkCurrentFrame();
 		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 		this.play();
 	}
@@ -132,7 +189,7 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!this._bitmap) return;
 		this.stop();
 		this._currentFrame = frame;
-		this.checkCurrentFrame(this.bitmapDataList);
+		this.checkCurrentFrame();
 		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 	}
 	
@@ -143,7 +200,7 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		this.stop();
 		this._currentFrame++;
-		this.checkCurrentFrame(this.bitmapDataList);
+		this.checkCurrentFrame();
 		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 	}
 	
@@ -154,7 +211,7 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		this.stop();
 		this._currentFrame--;
-		this.checkCurrentFrame(this.bitmapDataList);
+		this.checkCurrentFrame();
 		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 	}
 	
@@ -167,19 +224,7 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!container) return;
 		if (!this._bitmap) return;
 		if (this.container == container) return;
-		var buttonMode:Boolean;
-		var mouseEnabled:Boolean;
-		if (this.container)
-		{
-			//先保存上一次容器的鼠标状态
-			buttonMode = this.buttonMode;
-			mouseEnabled = this.mouseEnabled;
-			this.mouseEnabled = false;
-			this.buttonMode = false;
-		}
 		this.container = Sprite(container);
-		this.buttonMode = buttonMode;
-		this.mouseEnabled = mouseEnabled;
 		this.container.addChild(this._bitmap);
 	}
 	
@@ -190,8 +235,6 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		if (!this._bitmap) return;
 		if (!this.container) return;
-		this.buttonMode = false;
-		this.mouseEnabled = false;
 		this.container.removeChild(this._bitmap);
 		this.container = null;
 	}
@@ -207,6 +250,7 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!this.mc) return;
 		if (this.container == displayObject)
 			throw new ArgumentError("Error #2150: 无法将对象添加为自身的子对象（或孙对象）的子对象。", 2150);
+		if (this.mc.contains(displayObject)) return;
 		this.mc.addChild(displayObject);
 		displayObject.x = pos.x;
 		displayObject.y = pos.y;
@@ -222,6 +266,7 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		if (!this.container) return;
 		if (!this.mc) return;
+		if (!this.mc.contains(displayObject)) return;
 		if (displayObject && 
 			displayObject.parent)
 			displayObject.parent.removeChild(displayObject);
@@ -238,12 +283,13 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!this.mc) return;
 		var isPlaying:Boolean = this._isPlaying;
 		if (isPlaying) this.stop();
-		this.size = this.getMaxSize(this.mc);
-		this._bitmap.x = this.mc.x + this.size.maxLeft;
-		this._bitmap.y = this.mc.y + this.size.maxTop;
+		var prevLeft:Number = this.drawRectangle.left;
+		var prevTop:Number = this.drawRectangle.top;
+		this.drawRectangle = BitmapMovieClip.getDrawRectangle(this.mc);
 		this.removeBitmapDataList();
-		this.bitmapDataList = this.drawMovieClip(this.mc, this.size.maxWidth, this.size.maxHeight, 
-												 this.size.maxLeft, this.size.maxTop);
+		this.bitmapDataList = BitmapMovieClip.drawMovieClip(this.mc, this.drawRectangle);
+		this.x -= prevLeft - this.drawRectangle.left;
+		this.y -= prevTop - this.drawRectangle.top;
 		this.gotoAndStop(this._currentFrame);
 		if (isPlaying) this.play();
 	}
@@ -256,7 +302,7 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!this.bitmapDataList) return;
 		this._bitmap.bitmapData = this.bitmapDataList[this._currentFrame - 1];
 		this._currentFrame++;
-		this.checkCurrentFrame(this.bitmapDataList);
+		this.checkCurrentFrame();
 	}
 	
 	private function enterFrameHandler(event:Event):void 
@@ -268,79 +314,14 @@ public class BitmapMovieClip extends EventDispatcher
 	 * 判断当前帧是否越界
 	 * @param	bitmapDataList 位图数据列表
 	 */
-	private function checkCurrentFrame(bitmapDataList:Array):void
+	private function checkCurrentFrame():void
 	{
-		if (this._currentFrame > bitmapDataList.length)
+		if (this._currentFrame > this.bitmapDataList.length)
 			this._currentFrame = 1;
 		else if (this._currentFrame <= 0)
 			this._currentFrame = this.totalFrames;
 	}
-	
-	/**
-	 * 获取影片剪辑尺寸
-	 * @param	mc  需要转换bitmapMovieClip的 影片剪辑
-	 * @return  尺寸数据对象
-	 */
-	private function getMaxSize(mc:MovieClip):Object
-	{
-		var totalFrames:int = mc.totalFrames;
-		mc.gotoAndStop(1);
-		var rect:Rectangle = mc.getBounds(mc);
-		var maxRight:Number = rect.right;
-		var maxBottom:Number = rect.bottom;
-		var maxLeft:Number = rect.left;
-		var maxTop:Number = rect.top;
-		//最大高宽
-		var maxWidth:Number = rect.right - rect.left;
-		var maxHeight:Number = rect.bottom - rect.top;
-		if (totalFrames == 1)
-			return { "maxWidth":maxWidth, "maxHeight":maxHeight, 
-					 "maxLeft":maxLeft, "maxTop":maxTop };
-		for (var i:int = 2; i <= totalFrames; i += 1)
-		{
-			mc.gotoAndStop(i);
-			//找出矩形范围最大的位置
-			rect = mc.getBounds(mc);
-			if (rect.right > maxRight) 
-				maxRight = rect.right;
-			if (rect.bottom > maxBottom) 
-				maxBottom = rect.bottom;
-			if (rect.left < maxLeft) 
-				maxLeft = rect.left;
-			if (rect.top < maxTop)
-				maxTop = rect.top;
-		}
-		maxWidth = maxRight - maxLeft;
-		maxHeight = maxBottom - maxTop;
-		return { "maxWidth":maxWidth, "maxHeight":maxHeight, 
-				 "maxLeft":maxLeft, "maxTop":maxTop };
-	}
-	
-	/**
-	 * 绘制mc的位图数据
-	 * @param	mc      需要绘制的mc
-	 * @param	width   宽度
-	 * @param	height  高度
-	 * @param	left  	mc的矩形范围最左位置
-	 * @param	top  	mc的矩形范围最上位置
-	 * @return  位图数据列表 根据mc帧的内容部署
-	 */
-	private function drawMovieClip(mc:MovieClip, width:Number, height:Number, maxLeft:Number, maxTop:Number):Array
-	{
-		var bitmapDataList:Array = [];
-		var matrix:Matrix = new Matrix(1, 0, 0, 1, -maxLeft, -maxTop);
-		var totalFrames:int = mc.totalFrames;
-		var bitmapData:BitmapData;
-		for (var i:int = 1; i <= totalFrames; i += 1)
-		{
-			mc.gotoAndStop(i);
-			bitmapData = new BitmapData(width, height, true, 0x000000);
-			bitmapData.draw(mc, matrix); 
-			bitmapDataList.push(bitmapData);
-		}
-		return bitmapDataList;
-	}
-	
+		
 	/**
 	 * 是否是透明区域
 	 * @param	pos         需要确认的透明位置
@@ -440,28 +421,20 @@ public class BitmapMovieClip extends EventDispatcher
 	/**
 	 * x缩放比例
 	 */
-	public function get scaleX():int { return _scaleX; };
-	public function set scaleX(value:int):void 
+	public function get scaleX():Number { return _scaleX; };
+	public function set scaleX(value:Number):void 
 	{
 		_scaleX = value;
-		if (this.scaleX > 0)
-			this._bitmap.x = this.mc.x + this.size.maxLeft;
-		else if (this.scaleX < 0)
-			this._bitmap.x = this.mc.x - this.size.maxLeft;
 		this._bitmap.scaleX = this.scaleX;
 	}
 	
 	/**
 	 * y缩放比例
 	 */
-	public function get scaleY():int { return _scaleY; };
-	public function set scaleY(value:int):void 
+	public function get scaleY():Number { return _scaleY; };
+	public function set scaleY(value:Number):void 
 	{
 		_scaleY = value;
-		if (this.scaleY > 0)
-			this._bitmap.y = this.mc.y + this.size.maxTop;
-		else if (this.scaleY < 0)
-			this._bitmap.y = this.mc.y - this.size.maxTop;
 		this._bitmap.scaleY = this.scaleY;
 	}
 	
@@ -480,19 +453,12 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set buttonMode(value:Boolean):void 
 	{
 		_buttonMode = value;
-		if (!this.container) return;
+		if (!this.container || !this.container.stage) return;
 		if (this.buttonMode)
-		{
-			this.container.addEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
-			this.container.addEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
-		}
+			this.container.stage.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 		else
-		{
-			this.container.removeEventListener(MouseEvent.ROLL_OVER, rollOverHandler);
-			this.container.removeEventListener(MouseEvent.ROLL_OUT, rollOutHandler);
-			this.container.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
-		}
-		this.container.buttonMode = this.buttonMode;
+			this.container.stage.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
+		this.container.buttonMode = value;
 	}
 	
 	/**
@@ -502,18 +468,18 @@ public class BitmapMovieClip extends EventDispatcher
 	public function set mouseEnabled(value:Boolean):void 
 	{
 		_mouseEnabled = value;
-		if (!this.container) return;
+		if (!this.container || !this.container.stage) return;
 		if (this.mouseEnabled)
 		{
-			this.container.addEventListener(MouseEvent.CLICK, mouseClickHandler);
-			this.container.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
-			this.container.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+			this.container.stage.addEventListener(MouseEvent.CLICK, mouseClickHandler);
+			this.container.stage.addEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+			this.container.stage.addEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
 		}
 		else
 		{
-			this.container.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
-			this.container.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
-			this.container.removeEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
+			this.container.stage.removeEventListener(MouseEvent.CLICK, mouseClickHandler);
+			this.container.stage.removeEventListener(MouseEvent.MOUSE_DOWN, mouseDownHandler);
+			this.container.stage.removeEventListener(MouseEvent.MOUSE_UP, mouseUpHandler);
 		}
 	}
 	
@@ -534,22 +500,13 @@ public class BitmapMovieClip extends EventDispatcher
 	
 	private function mouseMoveHandler(event:MouseEvent):void 
 	{
+		if (!this._bitmap || !this._bitmap.parent) return;
 		//首先需要把屏幕上的鼠标坐标位置转换为bitmap内的鼠标位置
 		var localPos:Point = this._bitmap.globalToLocal(new Point(event.stageX, event.stageY));
 		if (this.isTransparentPoint(localPos, this._bitmap.bitmapData))
 			this.container.buttonMode = false;
 		else
 			this.container.buttonMode = true;
-	}
-	
-	private function rollOutHandler(event:MouseEvent):void 
-	{
-		this.container.removeEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
-	}
-	
-	private function rollOverHandler(event:MouseEvent):void 
-	{
-		this.container.addEventListener(MouseEvent.MOUSE_MOVE, mouseMoveHandler);
 	}
 	
 	/**
@@ -619,6 +576,33 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		this.x = x;
 		this.y = y;
+	}
+	
+	/**
+	 * 克隆一个位图动画，当如果重复需要创建相同的
+	 * 位图动画时，推荐使用clone，可以方便快速生成副本(因为不需要draw)。
+	 * @return
+	 */
+	public function clone(depth:Boolean = true):BitmapMovieClip
+	{
+		var bitmapDataList:Vector.<BitmapData>;
+		if (depth)
+		{
+			bitmapDataList = new Vector.<BitmapData>();
+			var length:int = this.bitmapDataList.length;
+			var bitmapData:BitmapData;
+			for (var i:int = 0; i < length; i += 1)
+			{
+				bitmapData = this.bitmapDataList[i];
+				bitmapData.lock();
+				bitmapDataList.push(bitmapData.clone());
+				bitmapData.unlock();
+			}
+		}
+		else bitmapDataList = this.bitmapDataList.slice();
+		var drawRectangle:Rectangle = this.drawRectangle.clone();
+		var bitmapMovieClip:BitmapMovieClip = new BitmapMovieClip(this.mc, bitmapDataList, drawRectangle, this.container);
+		return bitmapMovieClip;
 	}
 	
 	/**
@@ -706,7 +690,7 @@ public class BitmapMovieClip extends EventDispatcher
 		this.mouseEnabled = false;
 		this.container = null;
 		this.removeMovieClip();
-		this.size = null;
+		this.drawRectangle = null;
 		this.removeBitmap();
 	}
 }
