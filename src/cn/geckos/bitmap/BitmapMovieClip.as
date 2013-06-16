@@ -23,7 +23,7 @@ public class BitmapMovieClip extends EventDispatcher
 	//需要显示这个位图动画的容器
 	protected var container:Sprite;
 	//存放多个帧的位图列表。
-	protected var bitmapDataList:Array;
+	protected var bitmapDataList:Vector.<BitmapData>;
 	//一个位图用于创建位图动画
 	protected var _bitmap:Bitmap;
 	//当前帧
@@ -207,6 +207,7 @@ public class BitmapMovieClip extends EventDispatcher
 		if (!this.mc) return;
 		if (this.container == displayObject)
 			throw new ArgumentError("Error #2150: 无法将对象添加为自身的子对象（或孙对象）的子对象。", 2150);
+		if (this.mc.contains(displayObject)) return;
 		this.mc.addChild(displayObject);
 		displayObject.x = pos.x;
 		displayObject.y = pos.y;
@@ -222,6 +223,7 @@ public class BitmapMovieClip extends EventDispatcher
 	{
 		if (!this.container) return;
 		if (!this.mc) return;
+		if (!this.mc.contains(displayObject)) return;
 		if (displayObject && 
 			displayObject.parent)
 			displayObject.parent.removeChild(displayObject);
@@ -268,7 +270,7 @@ public class BitmapMovieClip extends EventDispatcher
 	 * 判断当前帧是否越界
 	 * @param	bitmapDataList 位图数据列表
 	 */
-	private function checkCurrentFrame(bitmapDataList:Array):void
+	private function checkCurrentFrame(bitmapDataList:Vector.<BitmapData>):void
 	{
 		if (this._currentFrame > bitmapDataList.length)
 			this._currentFrame = 1;
@@ -325,9 +327,9 @@ public class BitmapMovieClip extends EventDispatcher
 	 * @param	top  	mc的矩形范围最上位置
 	 * @return  位图数据列表 根据mc帧的内容部署
 	 */
-	private function drawMovieClip(mc:MovieClip, width:Number, height:Number, maxLeft:Number, maxTop:Number):Array
+	private function drawMovieClip(mc:MovieClip, width:Number, height:Number, maxLeft:Number, maxTop:Number):Vector.<BitmapData>
 	{
-		var bitmapDataList:Array = [];
+		var bitmapDataList:Vector.<BitmapData> = new Vector.<BitmapData>();
 		var matrix:Matrix = new Matrix(1, 0, 0, 1, -maxLeft, -maxTop);
 		var totalFrames:int = mc.totalFrames;
 		var bitmapData:BitmapData;

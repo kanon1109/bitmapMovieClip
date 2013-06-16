@@ -82,8 +82,8 @@ public class Test extends Sprite
 		else
 			bitmapMovieClip1.alpha = 1;
 		
-		trace("hit c1", bitmapMovieClip1.hitTestObject(c1))
-		trace("hit mouse", this.bitmapMovieClip.hitTestPoint(mouseX, mouseY, true));
+		//trace("hit c1", bitmapMovieClip1.hitTestObject(c1))
+		//trace("hit mouse", this.bitmapMovieClip.hitTestPoint(mouseX, mouseY, true));
 		/*this.bitmap.x = mouseX;
 		this.bitmap.y = mouseY;
 		trace(this.bitmapMovieClip.hitTest(this.bitmap));*/
@@ -118,7 +118,7 @@ public class Test extends Sprite
 		//spt.stopDrag();
 		this.bitmapMovieClip.addChildToParent(c2.c1);
 		this.bitmapMovieClip.addChild(c2, new Point(100, -280));
-		this.bitmapMovieClip.addChild(this.effectMc, new Point(100, -280));
+		//this.bitmapMovieClip.addChild(this.effectMc, new Point(100, -280));
 	}
 	
 	private function mouseDownHandler(event:MouseEvent):void 
